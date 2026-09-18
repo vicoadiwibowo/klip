@@ -1,14 +1,14 @@
+# API key & konfigurasi lokal — JANGAN pernah diupload
+config/apikey.env
+
+# Folder hasil proses (dibuat otomatis saat aplikasi jalan)
 downloads/
 clips/
 uploads_srt/
 uploads_music/
-uploads_test_videos/
 state.json
-server.log
-*.log
-*.pyc
+
+# Python
 __pycache__/
-*.bak
-prompt.txt
-patch_*.py
-fix_*.py
+*.pyc
+.venv/
