@@ -1,5 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# AI Video Klip V2 - Auto Installer with FFmpeg Auto-Repair
+# AI Video Klip V2 - Auto Installer (Safe Mode)
 
 REPO_URL="https://github.com/vicoadiwibowo/klip"
 INSTALL_DIR="$HOME/klip"
@@ -11,13 +11,6 @@ RED='\033[0;31m'
 BOLD='\033[1m'
 NC='\033[0m'
 
-# PENTING: Arahkan input dari terminal langsung (bukan pipe)
-if [ -t 0 ]; then
-    TTY_IN="/dev/tty"
-else
-    TTY_IN="/dev/tty"
-fi
-
 echo ""
 echo -e "${CYAN}========================================${NC}"
 echo -e "${CYAN}   AI Video Klip V2 - Installer         ${NC}"
@@ -25,109 +18,90 @@ echo -e "${CYAN}========================================${NC}"
 echo ""
 
 # ------------------------------------------------------------
-# STEP 1: Update + upgrade
+# STEP 1: Update repo list saja (bukan upgrade)
 # ------------------------------------------------------------
-echo -e "${YELLOW}[1/7]${NC} Update Termux (upgrade semua paket)..."
-echo "  Ini bisa lama (5-10 menit) di install pertama."
+echo -e "${YELLOW}[1/6]${NC} Update daftar paket..."
 pkg update -y 2>&1 | tail -2 || true
-echo "  Upgrade paket lama..."
-pkg upgrade -y 2>&1 | tail -3 || true
 echo -e "${GREEN}  OK${NC}"
 echo ""
 
 # ------------------------------------------------------------
-# STEP 2: Install paket dasar
+# STEP 2: Install paket yang dibutuhkan
 # ------------------------------------------------------------
-echo -e "${YELLOW}[2/7]${NC} Install paket dasar (python, git, ffmpeg)..."
-pkg install -y python git 2>&1 | tail -2 || true
-pkg install -y python-cryptography 2>&1 | tail -2 || true
+echo -e "${YELLOW}[2/6]${NC} Install paket dasar..."
 
-# FFmpeg auto-repair
-echo "  Install ffmpeg..."
+# Install satu per satu dengan error handling
+for pkg_name in python git ffmpeg; do
+    echo -e "  Install ${BOLD}$pkg_name${NC}..."
+    pkg install -y "$pkg_name" 2>&1 | tail -1 || true
+done
 
-install_ffmpeg() {
-    pkg install -y ffmpeg 2>&1 | tail -3 || true
-    if ffmpeg -version > /dev/null 2>&1; then
-        return 0
-    fi
-    return 1
-}
-
-if install_ffmpeg; then
-    echo -e "${GREEN}  OK ffmpeg terinstall${NC}"
-else
-    echo -e "${YELLOW}  ⚠ ffmpeg error, coba fix 1: reinstall libplacebo${NC}"
-    pkg install --reinstall -y libplacebo 2>&1 | tail -2 || true
-    if install_ffmpeg; then
-        echo -e "${GREEN}  OK ffmpeg terinstall${NC}"
-    else
-        echo -e "${YELLOW}  ⚠ Fix 2: reinstall ffmpeg + libplacebo${NC}"
-        pkg install --reinstall -y ffmpeg libplacebo 2>&1 | tail -3 || true
-        if install_ffmpeg; then
-            echo -e "${GREEN}  OK ffmpeg terinstall${NC}"
-        else
-            echo -e "${YELLOW}  ⚠ Fix 3: clean + upgrade${NC}"
-            apt clean
-            pkg upgrade -y 2>&1 | tail -3 || true
-            pkg install -y ffmpeg 2>&1 | tail -3 || true
-            if install_ffmpeg; then
-                echo -e "${GREEN}  OK ffmpeg terinstall${NC}"
-            else
-                echo -e "${RED}  ✗ ffmpeg tetap error. Coba 'termux-change-repo' lalu ulangi.${NC}"
-            fi
-        fi
-    fi
+# Cek ffmpeg
+if ! ffmpeg -version > /dev/null 2>&1; then
+    echo -e "${YELLOW}  ⚠ ffmpeg error, coba reinstall${NC}"
+    pkg install --reinstall -y ffmpeg 2>&1 | tail -2 || true
 fi
+
+# Cek git
+if ! git --version > /dev/null 2>&1; then
+    echo -e "${RED}  ✗ git tidak terinstall${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}  OK${NC}"
 echo ""
 
 # ------------------------------------------------------------
 # STEP 3: Download project
 # ------------------------------------------------------------
-echo -e "${YELLOW}[3/7]${NC} Download project..."
+echo -e "${YELLOW}[3/6]${NC} Download project..."
+
+cd "$HOME" || exit 1
+
 if [ -d "$INSTALL_DIR" ]; then
-    cd "$INSTALL_DIR" || exit 1
-    git pull --quiet 2>/dev/null || true
-else
-    if ! git clone --quiet "$REPO_URL.git" "$INSTALL_DIR" 2>/dev/null; then
-        echo -e "${YELLOW}  git clone gagal, coba ZIP...${NC}"
-        pkg install -y unzip 2>&1 | tail -1 || true
-        mkdir -p "$INSTALL_DIR"
-        cd "$INSTALL_DIR" || exit 1
-        curl -sL "$REPO_URL/archive/refs/heads/main.zip" -o repo.zip
-        unzip -q repo.zip -d /tmp/ 2>/dev/null
-        cp -r /tmp/klip-main/* . 2>/dev/null || true
-        cp -r /tmp/klip-main/.[!.]* . 2>/dev/null || true
-        rm -f repo.zip
-    fi
+    rm -rf "$INSTALL_DIR"
 fi
+
+if ! git clone --quiet "$REPO_URL.git" "$INSTALL_DIR" 2>/dev/null; then
+    echo -e "${YELLOW}  git clone gagal, coba ZIP...${NC}"
+    pkg install -y unzip 2>&1 | tail -1 || true
+    mkdir -p "$INSTALL_DIR"
+    cd "$INSTALL_DIR" || exit 1
+    curl -sL "$REPO_URL/archive/refs/heads/main.zip" -o repo.zip
+    unzip -q repo.zip -d /tmp/ 2>/dev/null
+    cp -r /tmp/klip-main/* . 2>/dev/null || true
+    cp -r /tmp/klip-main/.[!.]* . 2>/dev/null || true
+    rm -f repo.zip
+fi
+
 cd "$INSTALL_DIR" || exit 1
 echo -e "${GREEN}  OK${NC}"
 
 # ------------------------------------------------------------
 # STEP 4: Setup folder
 # ------------------------------------------------------------
-echo -e "${YELLOW}[4/7]${NC} Setup folder runtime..."
+echo -e "${YELLOW}[4/6]${NC} Setup folder..."
 mkdir -p downloads clips uploads_srt uploads_music
 echo -e "${GREEN}  OK${NC}"
 
 # ------------------------------------------------------------
 # STEP 5: Python deps
 # ------------------------------------------------------------
-echo -e "${YELLOW}[5/7]${NC} Install dependencies Python..."
+echo -e "${YELLOW}[5/6]${NC} Install dependencies Python..."
 pip install --quiet --upgrade flask requests 2>&1 | grep -v "already satisfied" | tail -1 || true
 pip install --quiet --upgrade yt-dlp 2>&1 | grep -v "already satisfied" | tail -1 || true
 echo -e "${GREEN}  OK${NC}"
 echo ""
 
 # ------------------------------------------------------------
-# STEP 6: API KEY INPUT (dari /dev/tty — bisa dibaca walau via curl|bash)
+# STEP 6: API KEY
 # ------------------------------------------------------------
 clear
 
 echo ""
 echo -e "${CYAN}╔════════════════════════════════════════════════╗${NC}"
 echo -e "${CYAN}║                                                ║${NC}"
-echo -e "${CYAN}║   ${BOLD}${YELLOW}LANGKAH TERAKHIR: MASUKKAN API KEY${NC}${CYAN}            ║${NC}"
+echo -e "${CYAN}║   ${BOLD}${YELLOW}MASUKKAN API KEY GEMINI${NC}${CYAN}                    ║${NC}"
 echo -e "${CYAN}║                                                ║${NC}"
 echo -e "${CYAN}╚════════════════════════════════════════════════╝${NC}"
 echo ""
@@ -136,9 +110,7 @@ echo -e "  Buka browser: ${CYAN}https://aistudio.google.com/app/apikey${NC}"
 echo -e "  Login Google → klik ${BOLD}Create API key${NC} → ${BOLD}COPY${NC}"
 echo ""
 echo -e "  ${BOLD}Cara paste di Termux:${NC}"
-echo -e "  1. Ketuk dan tahan di area terminal"
-echo -e "  2. Pilih ${GREEN}Paste${NC}"
-echo -e "  3. Tekan ${GREEN}Enter${NC}"
+echo -e "  Ketuk dan tahan di area terminal → Paste → Enter"
 echo ""
 echo -e "${YELLOW}═════════════════════════════════════════════════${NC}"
 echo -e "${YELLOW}  ⬇  PASTE API KEY DI BAWAH INI  ⬇${NC}"
@@ -146,20 +118,16 @@ echo -e "${YELLOW}════════════════════�
 echo ""
 
 GEMINI_KEY=""
-
-# Loop sampai dapat input (baca dari /dev/tty supaya bisa dibaca walau via curl | bash)
 while [ -z "$GEMINI_KEY" ]; do
     printf "  ${BOLD}${GREEN}▶ ${NC}"
     read GEMINI_KEY < /dev/tty
     GEMINI_KEY=$(echo "$GEMINI_KEY" | xargs)
-
     if [ -z "$GEMINI_KEY" ]; then
         echo -e "  ${RED}✗ Kosong. Paste key dulu, baru Enter.${NC}"
         echo ""
     fi
 done
 
-# Simpan key
 if grep -q "GEMINI_API_KEY" ~/.bashrc 2>/dev/null; then
     sed -i '/GEMINI_API_KEY/d' ~/.bashrc
 fi
@@ -171,43 +139,26 @@ echo -e "  ${GREEN}✓ API Key tersimpan${NC}"
 echo ""
 
 # ------------------------------------------------------------
-# STEP 7: Verifikasi
+# VERIFIKASI & SELESAI
 # ------------------------------------------------------------
-echo -e "${YELLOW}[6/7]${NC} Verifikasi install..."
-FFMPEG_STATUS="${RED}✗${NC}"
-YTDLP_STATUS="${RED}✗${NC}"
-PYTHON_STATUS="${RED}✗${NC}"
-
-if ffmpeg -version > /dev/null 2>&1; then
-    FFMPEG_STATUS="${GREEN}✓${NC}"
-fi
-if yt-dlp --version > /dev/null 2>&1; then
-    YTDLP_STATUS="${GREEN}✓${NC}"
-fi
-if python -c "import flask" 2>/dev/null; then
-    PYTHON_STATUS="${GREEN}✓${NC}"
-fi
-
-echo -e "  ${PYTHON_STATUS} Python + Flask"
-echo -e "  ${FFMPEG_STATUS} FFmpeg"
-echo -e "  ${YTDLP_STATUS} yt-dlp"
+echo -e "${YELLOW}[6/6]${NC} Verifikasi..."
+FF="${RED}✗${NC}"; YT="${RED}✗${NC}"; PY="${RED}✗${NC}"
+ffmpeg -version > /dev/null 2>&1 && FF="${GREEN}✓${NC}"
+yt-dlp --version > /dev/null 2>&1 && YT="${GREEN}✓${NC}"
+python -c "import flask" 2>/dev/null && PY="${GREEN}✓${NC}"
+echo -e "  ${PY} Python + Flask"
+echo -e "  ${FF} FFmpeg"
+echo -e "  ${YT} yt-dlp"
 echo ""
 
-# ------------------------------------------------------------
-# SELESAI
-# ------------------------------------------------------------
 echo -e "${CYAN}========================================${NC}"
 echo -e "${CYAN}         ✅ INSTALL SELESAI             ${NC}"
 echo -e "${CYAN}========================================${NC}"
 echo ""
-echo -e "  ${YELLOW}[7/7]${NC} Jalankan aplikasi:"
-echo ""
+echo -e "  Jalankan:"
 echo -e "  ${GREEN}cd ~/klip${NC}"
 echo -e "  ${GREEN}python app.py${NC}"
 echo ""
-echo "  Buka browser:"
+echo -e "  Buka browser:"
 echo -e "  ${CYAN}http://192.168.x.x:5000${NC}"
-echo ""
-echo -e "  ${YELLOW}Tips: cek IP Termux dengan:${NC}"
-echo -e "  ${GREEN}ifconfig wlan0 | grep 'inet '${NC}"
 echo ""
