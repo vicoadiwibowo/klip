@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Video Klip V2</title>
+<style>
+:root{
+  --bg:#0a0e27;
+  --bg-2:#0f1435;
+  --card:#141a3d;
+  --card-hover:#1a2148;
+  --border:#232a52;
+  --border-hi:#3a4380;
+  --text:#e8eaff;
+  --text-muted:#8892c8;
+  --primary:#7c3aed;
+  --primary-2:#a855f7;
+  --pink:#ec4899;
+  --cyan:#06b6d4;
+  --success:#10b981;
+  --danger:#ef4444;
+  --warn:#f59e0b;
+  --radius:14px;
+  --shadow:0 12px 40px rgba(0,0,0,0.5);
+  --glow:0 0 30px rgba(124,58,237,0.3);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Inter','Segoe UI',Tahoma,sans-serif;
+  background:radial-gradient(ellipse at top, #1a1145 0%, #0a0e27 50%);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;justify-content:center;align-items:flex-start;
+  padding:2rem 1rem;
+  background-attachment:fixed;
+}
+.container{
+  max-width:940px;width:100%;
+  background:linear-gradient(135deg, rgba(20,26,61,0.9), rgba(15,20,53,0.95));
+  border-radius:var(--radius);
+  box-shadow:var(--shadow), var(--glow);
+  padding:2rem;
+  border:1px solid var(--border);
+  backdrop-filter:blur(20px);
+}
+.header{display:flex;align-items:center;gap:1rem;margin-bottom:0.5rem;}
+.logo{
+  width:48px;height:48px;border-radius:12px;
+  background:linear-gradient(135deg,var(--primary),var(--pink));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;
+  box-shadow:0 4px 20px rgba(124,58,237,0.4);
+}
+h1{
+  font-size:1.7rem;font-weight:700;
+  background:linear-gradient(135deg,#fff,#c4b5fd);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  letter-spacing:-0.5px;
+}
+.subtitle{color:var(--text-muted);font-size:0.88rem;margin-bottom:1.5rem;margin-left:64px;}
+
+.tab-nav{
+  display:flex;gap:0.4rem;margin-bottom:1.5rem;
+  background:rgba(10,14,39,0.6);
+  padding:0.4rem;border-radius:10px;
+  border:1px solid var(--border);
+}
+.tab-button{
+  flex:1;background:transparent;border:none;
+  color:var(--text-muted);
+  padding:0.7rem;border-radius:8px;
+  cursor:pointer;font-weight:600;font-size:0.9rem;
+  transition:all 0.2s;font-family:inherit;
+}
+.tab-button:hover{background:rgba(124,58,237,0.1);color:var(--text);}
+.tab-button.active{
+  background:linear-gradient(135deg,var(--primary),var(--primary-2));
+  color:#fff;box-shadow:0 4px 12px rgba(124,58,237,0.3);
+}
+.tab-content{display:none;}
+.tab-content.active{display:block;animation:fadeIn 0.3s;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+label{
+  display:flex;align-items:center;gap:0.5rem;
+  margin-bottom:0.5rem;margin-top:1rem;
+  font-weight:600;color:var(--text);font-size:0.9rem;
+}
+.step-num{
+  width:24px;height:24px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary),var(--pink));
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:0.75rem;font-weight:700;color:#fff;
+  flex-shrink:0;
+}
+input[type="text"],textarea,select{
+  width:100%;padding:0.75rem 0.9rem;
+  background:rgba(10,14,39,0.7);
+  border:1px solid var(--border);
+  border-radius:8px;color:var(--text);
+  font-size:0.9rem;font-family:inherit;
+  transition:all 0.2s;
+}
+input[type="text"]:focus,textarea:focus,select:focus{
+  outline:none;
+  border-color:var(--primary-2);
+  box-shadow:0 0 0 3px rgba(124,58,237,0.15);
+  background:rgba(15,20,53,0.9);
+}
+textarea{resize:vertical;font-family:inherit;line-height:1.5;}
+select{cursor:pointer;}
+
+input[type="file"]{
+  width:100%;padding:0.7rem;
+  background:rgba(10,14,39,0.5);
+  border:1.5px dashed var(--border-hi);
+  border-radius:8px;color:var(--text-muted);
+  font-size:0.85rem;cursor:pointer;
+  font-family:inherit;
+  transition:all 0.2s;
+}
+input[type="file"]:hover{border-color:var(--primary-2);background:rgba(124,58,237,0.08);}
+input[type="file"]::file-selector-button{
+  background:linear-gradient(135deg,var(--primary),var(--primary-2));
+  color:#fff;border:none;
+  padding:0.45rem 0.9rem;border-radius:6px;
+  cursor:pointer;margin-right:0.7rem;
+  font-weight:600;font-family:inherit;
+  font-size:0.85rem;
+}
+
+button{
+  background:linear-gradient(135deg,var(--primary),var(--primary-2));
+  color:white;border:none;
+  padding:0.75rem 1.5rem;border-radius:8px;
+  cursor:pointer;font-weight:600;font-size:0.9rem;
+  font-family:inherit;
+  transition:all 0.2s;
+  box-shadow:0 4px 15px rgba(124,58,237,0.3);
+}
+button:hover:not(:disabled){
+  transform:translateY(-1px);
+  box-shadow:0 6px 20px rgba(124,58,237,0.5);
+}
+button:active:not(:disabled){transform:translateY(0);}
+button:disabled{opacity:0.5;cursor:not-allowed;box-shadow:none;}
+
+.btn-success{
+  background:linear-gradient(135deg,#059669,var(--success));
+  box-shadow:0 4px 15px rgba(16,185,129,0.3);
+}
+.btn-success:hover:not(:disabled){
+  box-shadow:0 6px 20px rgba(16,185,129,0.5);
+}
+.btn-danger{
+  background:linear-gradient(135deg,#dc2626,var(--danger));
+  box-shadow:0 4px 15px rgba(239,68,68,0.3);
+}
+.btn-danger:hover:not(:disabled){
+  box-shadow:0 6px 20px rgba(239,68,68,0.5);
+}
+.btn-ghost{
+  background:transparent;color:var(--text-muted);
+  border:1px solid var(--border-hi);box-shadow:none;
+}
+.btn-ghost:hover:not(:disabled){
+  background:rgba(124,58,237,0.1);
+  color:var(--text);box-shadow:none;transform:none;
+}
+.btn-blue{
+  background:linear-gradient(135deg,#0891b2,var(--cyan));
+  box-shadow:0 4px 15px rgba(6,182,212,0.3);
+}
+.btn-blue:hover:not(:disabled){
+  box-shadow:0 6px 20px rgba(6,182,212,0.5);
+}
+.btn-sm{padding:0.4rem 0.8rem;font-size:0.82rem;}
+.button-group{display:flex;gap:0.6rem;flex-wrap:wrap;margin:1.2rem 0;}
+
+.status-msg{
+  font-size:0.85rem;padding:0.5rem 0.75rem;
+  border-radius:6px;color:var(--text-muted);
+  font-style:italic;min-height:1.5em;
+  margin-top:0.4rem;
+  transition:all 0.2s;
+}
+.status-msg.ok{color:var(--success);font-style:normal;background:rgba(16,185,129,0.08);}
+.status-msg.err{color:#fca5a5;font-style:normal;background:rgba(239,68,68,0.08);}
+
+.divider{
+  border:none;height:1px;
+  background:linear-gradient(90deg,transparent,var(--border),transparent);
+  margin:1.5rem 0;
+}
+
+.progress-wrap{
+  width:100%;background:rgba(10,14,39,0.8);
+  border-radius:20px;margin:0.6rem 0 1rem;
+  overflow:hidden;height:22px;
+  border:1px solid var(--border);
+}
+.progress-bar{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,var(--primary),var(--pink),var(--cyan));
+  border-radius:20px;
+  transition:width 0.4s ease;
+  box-shadow:0 0 15px rgba(168,85,247,0.5);
+}
+.progress-text{
+  text-align:center;margin-bottom:0.4rem;
+  font-weight:600;font-size:0.88rem;
+  color:var(--text);
+}
+
+.analysis-box{
+  display:flex;align-items:center;gap:0.7rem;
+  padding:0.75rem 1rem;
+  background:linear-gradient(135deg,rgba(124,58,237,0.15),rgba(236,72,153,0.1));
+  border:1px solid var(--border-hi);
+  border-radius:8px;margin:0.8rem 0;
+  font-size:0.86rem;
+}
+.spinner{
+  display:inline-block;width:16px;height:16px;
+  border:2px solid rgba(168,85,247,0.3);
+  border-top-color:var(--pink);
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+  flex-shrink:0;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.analysis-box.ok{border-color:var(--success);background:rgba(16,185,129,0.08);}
+.analysis-box.ok .spinner{display:none;}
+.analysis-box.err{border-color:var(--danger);background:rgba(239,68,68,0.08);}
+.analysis-box.err .spinner{display:none;}
+.analysis-elapsed{
+  margin-left:auto;color:var(--text-muted);
+  font-family:'JetBrains Mono','Courier New',monospace;
+  font-size:0.8rem;
+}
+
+.clip-block{
+  background:linear-gradient(135deg,rgba(20,26,61,0.9),rgba(15,20,53,0.7));
+  border:1px solid var(--border);
+  border-radius:10px;padding:1rem;
+  margin-bottom:0.9rem;
+  transition:all 0.2s;
+}
+.clip-block:hover{
+  border-color:var(--border-hi);
+  transform:translateX(2px);
+}
+.clip-block-header{
+  font-weight:700;font-size:0.95rem;
+  color:var(--text);margin-bottom:0.6rem;
+  display:flex;align-items:center;gap:0.5rem;
+}
+.clip-block-header::before{
+  content:'🎬';font-size:1rem;
+}
+.clip-meta{
+  background:rgba(10,14,39,0.7);
+  border-left:3px solid var(--pink);
+  padding:0.6rem 0.8rem;
+  border-radius:6px;margin-bottom:0.5rem;
+  font-size:0.84rem;
+}
+.meta-row{
+  display:flex;align-items:flex-start;gap:0.6rem;
+  padding:0.3rem 0;line-height:1.4;
+}
+.meta-label{
+  font-weight:600;color:var(--pink);
+  min-width:75px;font-size:0.78rem;flex-shrink:0;
+}
+.meta-value{flex:1;word-break:break-word;color:var(--text);}
+.meta-copy-btn{
+  background:rgba(124,58,237,0.2);
+  border:none;color:var(--text);
+  cursor:pointer;padding:0.2rem 0.5rem;
+  border-radius:4px;font-size:0.8rem;
+  transition:all 0.2s;
+  box-shadow:none;
+}
+.meta-copy-btn:hover{background:var(--primary);box-shadow:none;transform:none;}
+
+.empty-note{
+  color:var(--text-muted);font-size:0.85rem;
+  font-style:italic;padding:0.8rem 0;
+  text-align:center;
+}
+
+.file-card{
+  background:linear-gradient(135deg,rgba(20,26,61,0.9),rgba(15,20,53,0.7));
+  border:1px solid var(--border);
+  border-radius:10px;padding:1rem;
+  margin-bottom:1rem;
+  transition:all 0.2s;
+}
+.file-card:hover{
+  border-color:var(--border-hi);
+  box-shadow:0 8px 30px rgba(0,0,0,0.3);
+}
+.file-card video{
+  width:100%;max-height:500px;
+  border-radius:8px;background:#000;
+  display:block;
+}
+.file-card-info{margin-top:0.8rem;}
+.file-card-info .filename{
+  font-weight:600;font-size:0.9rem;
+  color:var(--text);margin-bottom:0.4rem;
+  display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;
+}
+.file-card-info .filename small{
+  color:var(--text-muted);font-weight:400;
+  font-size:0.78rem;font-family:monospace;
+}
+.badge-srt{
+  display:inline-block;
+  background:rgba(6,182,212,0.15);
+  color:var(--cyan);
+  padding:0.15rem 0.5rem;
+  border-radius:4px;
+  font-size:0.72rem;
+  font-weight:600;
+}
+.clip-meta-display{
+  margin-top:0.7rem;
+  padding:0.7rem 0.9rem;
+  background:rgba(10,14,39,0.7);
+  border-left:3px solid var(--pink);
+  border-radius:6px;
+  font-size:0.83rem;
+}
+.clip-meta-display .meta-row{
+  display:flex;gap:0.6rem;
+  padding:0.3rem 0;align-items:flex-start;
+  line-height:1.4;
+}
+.clip-meta-display .meta-label{
+  font-weight:600;color:var(--pink);
+  min-width:75px;font-size:0.78rem;flex-shrink:0;
+}
+.clip-meta-display .meta-value{
+  flex:1;word-break:break-word;
+  user-select:all;color:var(--text);
+}
+.file-actions{
+  display:flex;gap:0.5rem;flex-wrap:wrap;
+  margin-top:0.8rem;
+}
+.file-actions a{
+  text-decoration:none;color:var(--cyan);
+  font-weight:600;padding:0.4rem 0.85rem;
+  border:1px solid var(--cyan);
+  border-radius:6px;font-size:0.82rem;
+  transition:all 0.2s;
+}
+.file-actions a:hover{
+  background:var(--cyan);color:#000;
+  box-shadow:0 4px 12px rgba(6,182,212,0.4);
+}
+
+.section-title{
+  display:flex;align-items:center;gap:0.5rem;
+  color:var(--text);margin:1.5rem 0 0.8rem;
+  font-size:1.05rem;font-weight:700;
+}
+.section-title::before{
+  content:'';width:4px;height:20px;
+  background:linear-gradient(180deg,var(--primary),var(--pink));
+  border-radius:2px;
+}
+
+.success-banner{
+  background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(6,182,212,0.1));
+  border:1px solid var(--success);
+  border-radius:10px;padding:1rem 1.2rem;
+  margin-bottom:1rem;
+}
+.success-banner h3{
+  color:var(--success);margin-bottom:0.3rem;
+  font-size:1.05rem;font-weight:700;
+}
+.success-banner p{
+  color:var(--text-muted);font-size:0.85rem;line-height:1.4;
+}
+
+.toast{
+  position:fixed;bottom:30px;left:50%;
+  transform:translateX(-50%) translateY(100px);
+  background:linear-gradient(135deg,var(--success),#059669);
+  color:#fff;padding:0.85rem 1.5rem;
+  border-radius:10px;font-weight:600;
+  box-shadow:0 8px 30px rgba(16,185,129,0.4);
+  z-index:9999;opacity:0;
+  transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.err{background:linear-gradient(135deg,var(--danger),#dc2626);box-shadow:0 8px 30px rgba(239,68,68,0.4);}
+
+@media(max-width:600px){
+  body{padding:1rem 0.5rem;}
+  .container{padding:1.2rem;}
+  h1{font-size:1.3rem;}
+  .subtitle{margin-left:0;text-align:center;}
+  .header{justify-content:center;}
+  .button-group button{flex:1;min-width:120px;}
+}
+
+/* Clip batch toolbar */
+.clip-toolbar{
+  display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;
+  padding:0.7rem 0.9rem;
+  background:rgba(10,14,39,0.6);
+  border:1px solid var(--border);
+  border-radius:10px;margin-bottom:1rem;
+}
+.clip-toolbar .tb-info{
+  font-size:0.82rem;color:var(--text-muted);
+  margin-left:auto;font-family:monospace;
+}
+.clip-toolbar .tb-info.active{color:var(--pink);font-weight:600;}
+.clip-toolbar label.chk{
+  display:inline-flex;align-items:center;gap:0.4rem;
+  margin:0;padding:0.35rem 0.6rem;
+  background:rgba(124,58,237,0.12);
+  border:1px solid var(--border-hi);
+  border-radius:6px;cursor:pointer;
+  font-size:0.82rem;color:var(--text);
+  font-weight:500;
+  transition:all 0.15s;
+}
+.clip-toolbar label.chk:hover{background:rgba(124,58,237,0.25);}
+.clip-toolbar input[type="checkbox"]{
+  width:16px;height:16px;cursor:pointer;
+  accent-color:var(--primary-2);margin:0;
+}
+.clip-item{position:relative;transition:all 0.2s;}
+.clip-item.selected{
+  border-color:var(--primary-2) !important;
+  box-shadow:0 0 0 2px rgba(168,85,247,0.3);
+}
+.clip-checkbox{
+  position:absolute;top:12px;right:12px;z-index:2;
+  width:22px;height:22px;cursor:pointer;
+  accent-color:var(--primary-2);
+}
+.clip-limit-info{
+  text-align:center;padding:0.8rem;
+  color:var(--text-muted);font-size:0.85rem;
+}
+.clip-limit-info button{
+  margin-top:0.5rem;padding:0.5rem 1rem;font-size:0.85rem;
+}
+
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">🎬</div>
+    <h1>AI Video Klip</h1>
+  </div>
+  <p class="subtitle">Upload SRT → Gemini analisis → Klip viral otomatis</p>
+
+  <div class="tab-nav">
+    <button class="tab-button active" data-tab="buat">✂️ Buat Klip</button>
+    <button class="tab-button" data-tab="files">📁 File Manager</button>
+  </div>
+
+  <!-- TAB BUAT -->
+  <div id="tab-buat" class="tab-content active">
+    <div id="step1">
+      <label><span class="step-num">1</span> File SRT <span style="color:var(--text-muted);font-weight:400;">(opsional — kalau kosong, auto-download dari YouTube)</span></label>
+      <input type="file" id="srtFile" accept=".srt">
+      <div id="srtStatus" class="status-msg"></div>
+
+      <label><span class="step-num">2</span> URL Video YouTube</label>
+      <input type="text" id="url" placeholder="https://www.youtube.com/watch?v=...">
+
+      <label><span class="step-num">3</span> Rasio Output</label>
+      <div style="background:rgba(10,14,39,0.5);border:1px solid var(--border);padding:0.7rem 1rem;border-radius:8px;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+        📐 <b style="color:var(--pink)">1:1 (Square)</b> — crop tengah video, subtitle di 7.5% dari bawah
+      </div>
+
+      <label><span class="step-num">4</span> Musik Latar <span style="color:var(--text-muted);font-weight:400;">(opsional, volume 50%)</span></label>
+      <input type="file" id="musicFile" accept="audio/*">
+      <div id="musicStatus" class="status-msg"></div>
+
+      <div class="button-group">
+        <button id="btnAnalyze" onclick="analyzeSrt()">✨ Analisis SRT dengan Gemini</button>
+      </div>
+
+      <div id="analysisBox" class="analysis-box" style="display:none;">
+        <span class="spinner"></span>
+        <span id="analysisText">Menghubungi Gemini...</span>
+        <span class="analysis-elapsed" id="analysisElapsed">0s</span>
+      </div>
+    </div>
+
+    <div id="step2" style="display:none;">
+      <hr class="divider">
+      <h3 class="section-title">Klip yang Akan Dibuat</h3>
+      <div id="clipsPreview"></div>
+      <div class="button-group">
+        <button class="btn-ghost" onclick="resetAnalysis()">← Kembali</button>
+        <button class="btn-success" onclick="processClips()">🚀 Proses Klip Sekarang</button>
+      </div>
+    </div>
+
+    <div id="progressArea" style="display:none;">
+      <hr class="divider">
+      <div class="progress-text" id="progressMsg">Memulai...</div>
+      <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+      <div style="text-align:center;font-size:0.82rem;color:var(--text-muted);padding:0.6rem;background:rgba(6,182,212,0.08);border-radius:6px;margin-top:0.6rem;line-height:1.5;">
+        💡 <b>Boleh keluar browser</b> — proses tetap berjalan di server.<br>
+        Buka kembali halaman ini kapan saja untuk cek progress.
+      </div>
+    </div>
+
+    <div id="result"></div>
+  </div>
+
+  <!-- TAB FILES -->
+  <div id="tab-files" class="tab-content">
+    <h3 class="section-title">Video Tersimpan</h3>
+    <div id="videoList"><p class="empty-note">Memuat...</p></div>
+    <h3 class="section-title">Klip Tersimpan</h3>
+    <div id="clipToolbar" class="clip-toolbar" style="display:none;">
+      <label class="chk"><input type="checkbox" id="chkAll" onchange="toggleSelectAll(this)"> Pilih Semua</label>
+      <button class="btn-danger btn-sm" onclick="deleteSelectedClips()" id="btnDeleteSelected" style="display:none;">🗑️ Hapus Terpilih</button>
+      <button class="btn-danger btn-sm" onclick="deleteAllClips()" style="background:linear-gradient(135deg,#7f1d1d,#dc2626);">🗑️ Hapus Semua Klip</button>
+      <span class="tb-info" id="clipToolbarInfo"></span>
+    </div>
+    <div id="clipList"><p class="empty-note">Memuat...</p></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+let parsed = [];
+let selectedClips = new Set();  // index klip yang dipilih
+let activeVideoFn = null;  // kalau re-process video lokal, ini diisi
+let srtFn = null;
+let musicFn = null;
+let polling = null;
+let timer = null;
+
+// Tab switching
+document.querySelectorAll('.tab-button').forEach(b => {
+  b.addEventListener('click', function() {
+    const t = this.dataset.tab;
+    document.querySelectorAll('.tab-button').forEach(x => x.classList.toggle('active', x.dataset.tab === t));
+    document.querySelectorAll('.tab-content').forEach(x => x.classList.toggle('active', x.id === 'tab-'+t));
+    if (t === 'files') loadFiles();
+    // Kalau pindah ke tab buat, cek apakah ada proses aktif
+    if (t === 'buat' && !polling) {
+      // Tidak ada proses jalan, aman untuk reset visual state kalau perlu
+    }
+  });
+});
+
+// Fungsi untuk reset state navigasi (dipanggil manual)
+function resetNavState() {
+  activeVideoFn = null;
+  parsed = [];
+  selectedClips.clear();
+  if (timer) { clearInterval(timer); timer = null; }
+  document.getElementById('analysisBox').style.display = 'none';
+}
+
+// File handlers
+document.getElementById('srtFile').addEventListener('change', function() {
+  const f = this.files[0];
+  const st = document.getElementById('srtStatus');
+  if (!f) { st.textContent = ''; window._srt = null; return; }
+  window._srt = f;
+  st.textContent = '✓ ' + f.name;
+  st.className = 'status-msg ok';
+});
+
+document.getElementById('musicFile').addEventListener('change', async function() {
+  const f = this.files[0];
+  const st = document.getElementById('musicStatus');
+  if (!f) { st.textContent = ''; musicFn = null; return; }
+  st.textContent = '⏳ Mengunggah musik...';
+  st.className = 'status-msg';
+  const fd = new FormData(); fd.append('file', f);
+  try {
+    const r = await fetch('/upload_music', { method: 'POST', body: fd });
+    const d = await r.json();
+    if (d.error) { st.textContent = '✗ ' + d.error; st.className = 'status-msg err'; musicFn = null; }
+    else { musicFn = d.filename; st.textContent = '✓ ' + f.name + ' (volume 50%)'; st.className = 'status-msg ok'; }
+  } catch (e) { st.textContent = '✗ ' + e.message; st.className = 'status-msg err'; musicFn = null; }
+});
+
+// Parse Gemini output
+function parseOutput(text) {
+  const out = [];
+  let cur = null;
+  for (const raw of text.split('\n')) {
+    const line = raw.trim();
+    if (!line) continue;
+    const mC = line.match(/^(\d{1,2}:\d{2}(?::\d{2})?(?:\.\d+)?)\s*-\s*(\d{1,2}:\d{2}(?::\d{2})?(?:\.\d+)?)$/);
+    if (mC) {
+      if (cur) out.push(cur);
+      cur = { start: mC[1], end: mC[2], title: '', hook: '', hashtag: '' };
+      continue;
+    }
+    if (!cur) continue;
+    const mT = line.match(/^(?:JUDUL|TITLE)\s*[:：]\s*(.+)$/i);
+    if (mT) { cur.title = mT[1].trim(); continue; }
+    const mH = line.match(/^(?:HOOK|HEADLINE)\s*[:：]\s*(.+)$/i);
+    if (mH) { cur.hook = mH[1].trim(); continue; }
+    const mHash = line.match(/^(?:HASHTAG|HASHTAGS|TAG)\s*[:：]\s*(.+)$/i);
+    if (mHash) { cur.hashtag = mHash[1].trim(); continue; }
+  }
+  if (cur) out.push(cur);
+  return out;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Analysis progress
+function startAnalysis() {
+  // Bersihkan timer lama
+  if (timer) { clearInterval(timer); timer = null; }
+  const box = document.getElementById('analysisBox');
+  const txt = document.getElementById('analysisText');
+  const el = document.getElementById('analysisElapsed');
+  box.style.display = 'flex';
+  box.className = 'analysis-box';
+  txt.textContent = 'Menghubungi Gemini...';
+  el.textContent = '0s';
+  const t0 = Date.now();
+  let dots = 0;
+  timer = setInterval(() => {
+    const s = Math.floor((Date.now() - t0) / 1000);
+    el.textContent = s + 's';
+    if (s < 3) txt.textContent = 'Menghubungi Gemini...';
+    else if (s < 10) txt.textContent = 'Menganalisis transkrip...';
+    else if (s < 20) txt.textContent = 'Mengidentifikasi momen viral...';
+    else { dots = (dots+1) % 4; txt.textContent = 'Menunggu respons' + '.'.repeat(dots) + ' (SRT panjang butuh waktu)'; }
+  }, 500);
+}
+
+function stopAnalysis(ok, msg) {
+  const box = document.getElementById('analysisBox');
+  const txt = document.getElementById('analysisText');
+  if (timer) { clearInterval(timer); timer = null; }
+  box.className = 'analysis-box ' + (ok ? 'ok' : 'err');
+  txt.textContent = msg || (ok ? 'Selesai!' : 'Gagal');
+  document.getElementById('analysisElapsed').textContent = '';
+  if (ok) setTimeout(() => { box.style.display = 'none'; }, 3000);
+}
+
+async function analyzeSrt() {
+  const url = document.getElementById('url').value.trim();
+  const st = document.getElementById('srtStatus');
+  const btn = document.getElementById('btnAnalyze');
+
+  if (!url) { alert('Isi URL YouTube dulu.'); return; }
+
+  // Reset state analisis sebelumnya
+  parsed = [];
+  selectedClips.clear();
+  activeVideoFn = null;
+  document.getElementById('result').innerHTML = '';
+  document.getElementById('clipsPreview').innerHTML = '';
+  document.getElementById('step2').style.display = 'none';
+  document.getElementById('step1').style.display = 'block';
+
+  const hasSrtFile = !!window._srt;
+  st.textContent = hasSrtFile ? '' : '⏳ Auto-download subtitle dari YouTube...';
+  if (!hasSrtFile) st.className = 'status-msg';
+  btn.disabled = true;
+  startAnalysis();
+
+  try {
+    let r;
+    if (hasSrtFile) {
+      const fd = new FormData();
+      fd.append('file', window._srt);
+      r = await fetch('/analyze_srt', { method: 'POST', body: fd });
+    } else {
+      r = await fetch('/analyze_youtube', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({url: url})
+      });
+    }
+    const d = await r.json();
+    if (d.error) {
+      stopAnalysis(false, '✗ ' + d.error);
+      btn.disabled = false;
+      return;
+    }
+    srtFn = d.srt_filename;
+    parsed = parseOutput(d.analysis);
+    if (!parsed.length) {
+      stopAnalysis(false, '✗ Format output tidak dikenali');
+      btn.disabled = false;
+      return;
+    }
+    stopAnalysis(true, '✓ ' + parsed.length + ' klip terdeteksi');
+    renderPreview();
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  } catch (e) {
+    stopAnalysis(false, '✗ ' + e.message);
+    btn.disabled = false;
+  }
+}
+
+function resetAnalysis() {
+  if (timer) { clearInterval(timer); timer = null; }
+  document.getElementById('analysisBox').style.display = 'none';
+  parsed = [];
+  document.getElementById('step2').style.display = 'none';
+  document.getElementById('step1').style.display = 'block';
+  document.getElementById('btnAnalyze').disabled = false;
+  document.getElementById('result').innerHTML = '';
+  document.getElementById('progressArea').style.display = 'none';
+}
+
+function renderPreview(resetSelection) {
+  const c = document.getElementById('clipsPreview');
+  if (!parsed.length) { c.innerHTML = '<p class="empty-note">Tidak ada klip.</p>'; return; }
+
+  // Reset pilihan hanya kalau diminta (default: true untuk analisis baru)
+  if (resetSelection !== false) {
+    selectedClips = new Set();
+    parsed.forEach((_, i) => selectedClips.add(i));
+  }
+
+  let h = '';
+  // Toolbar
+  h += '<div class="clip-toolbar" style="margin-bottom:1rem;">';
+  h += '<label class="chk"><input type="checkbox" id="chkAllClips" checked onchange="toggleAllClips(this)"> Pilih Semua</label>';
+  h += '<button class="btn-ghost btn-sm" onclick="selectNone()">Batal Pilih</button>';
+  h += '<span class="tb-info active" id="clipSelectInfo">' + parsed.length + ' dari ' + parsed.length + ' dipilih</span>';
+  h += '</div>';
+
+  parsed.forEach((clip, i) => {
+    h += '<div class="clip-block" id="cb-' + i + '" style="position:relative;">';
+    h += '<input type="checkbox" class="clip-checkbox" style="position:absolute;top:12px;right:12px;width:22px;height:22px;cursor:pointer;accent-color:#a855f7;" checked onchange="toggleClip(' + i + ',this)">';
+    h += '<div class="clip-block-header">Klip ' + (i+1) + ' — ' + clip.start + ' → ' + clip.end + '</div>';
+    if (clip.title || clip.hook || clip.hashtag) {
+      h += '<div class="clip-meta">';
+      if (clip.title) h += '<div class="meta-row"><span class="meta-label">📌 Judul</span><span class="meta-value">' + esc(clip.title) + '</span><button class="meta-copy-btn" onclick="copyMeta(' + i + ',\'title\')">copy</button></div>';
+      if (clip.hook) h += '<div class="meta-row"><span class="meta-label">🎣 Hook</span><span class="meta-value">' + esc(clip.hook) + '</span><button class="meta-copy-btn" onclick="copyMeta(' + i + ',\'hook\')">copy</button></div>';
+      if (clip.hashtag) h += '<div class="meta-row"><span class="meta-label">#️⃣ Tag</span><span class="meta-value">' + esc(clip.hashtag) + '</span><button class="meta-copy-btn" onclick="copyMeta(' + i + ',\'hashtag\')">copy</button></div>';
+      h += '</div>';
+    }
+    h += '</div>';
+  });
+  c.innerHTML = h;
+  updateClipSelectInfo();
+}
+
+function toggleAllClips(cb) {
+  if (cb.checked) {
+    parsed.forEach((_, i) => selectedClips.add(i));
+  } else {
+    selectedClips.clear();
+  }
+  document.querySelectorAll('.clip-checkbox').forEach((el, i) => {
+    el.checked = cb.checked;
+  });
+  document.querySelectorAll('.clip-block').forEach(el => {
+    el.style.opacity = cb.checked ? '1' : '0.5';
+  });
+  updateClipSelectInfo();
+}
+
+function selectNone() {
+  selectedClips.clear();
+  document.querySelectorAll('.clip-checkbox').forEach(el => el.checked = false);
+  document.querySelectorAll('.clip-block').forEach(el => el.style.opacity = '0.5');
+  document.getElementById('chkAllClips').checked = false;
+  updateClipSelectInfo();
+}
+
+function toggleClip(i, cb) {
+  if (cb.checked) selectedClips.add(i);
+  else selectedClips.delete(i);
+  const blk = document.getElementById('cb-' + i);
+  if (blk) blk.style.opacity = cb.checked ? '1' : '0.5';
+  updateClipSelectInfo();
+}
+
+function updateClipSelectInfo() {
+  const el = document.getElementById('clipSelectInfo');
+  const all = document.getElementById('chkAllClips');
+  if (!el) return;
+  el.textContent = selectedClips.size + ' dari ' + parsed.length + ' dipilih';
+  if (all) all.checked = (selectedClips.size === parsed.length);
+}
+
+function copyMeta(i, field) {
+  const c = parsed[i];
+  if (!c) return;
+  let t = '';
+  if (field === 'title') t = c.title || '';
+  else if (field === 'hook') t = c.hook || '';
+  else if (field === 'hashtag') t = c.hashtag || '';
+  if (!t) { showToast('Kosong', true); return; }
+  copyText(t);
+}
+
+async function processClips() {
+  const url = document.getElementById('url').value.trim();
+  if (!activeVideoFn && !url) { alert('Masukkan URL YouTube dulu, atau pilih video dari File Manager.'); return; }
+  if (!parsed.length) { alert('Belum ada klip.'); return; }
+  if (selectedClips.size === 0) { alert('Pilih minimal 1 klip.'); return; }
+
+  // Ambil hanya klip yang dipilih
+  const clipsData = [];
+  parsed.forEach((c, i) => {
+    if (selectedClips.has(i)) {
+      clipsData.push({
+        start: c.start,
+        end: c.end,
+        meta: { title: c.title, hook: c.hook, hashtag: c.hashtag }
+      });
+    }
+  });
+
+  const allClipsData = parsed.map(c => ({
+    start: c.start,
+    end: c.end,
+    meta: { title: c.title, hook: c.hook, hashtag: c.hashtag }
+  }));
+
+  const payload = { clips: clipsData, all_clips: allClipsData };
+  if (activeVideoFn) payload.video_filename = activeVideoFn;
+  else if (url) payload.url = url;
+  else { alert('URL kosong.'); return; }
+  if (srtFn) payload.srt_filename = srtFn;
+  if (musicFn) payload.music_filename = musicFn;
+
+  document.getElementById('progressArea').style.display = 'block';
+  document.getElementById('progressMsg').textContent = 'Mengirim permintaan...';
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('result').innerHTML = '';
+
+  try {
+    const endpoint = activeVideoFn ? '/process_existing' : '/process';
+    const r = await fetch(endpoint, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const d = await r.json();
+    if (d.error) { showErr(d.error); return; }
+    const jid = d.job_id;
+    // Bersihkan polling lama kalau ada
+    if (polling) { clearInterval(polling); polling = null; }
+    polling = setInterval(async () => {
+      try {
+        const sr = await fetch('/status/' + jid);
+        const sd = await sr.json();
+        if (sd.error) { clearInterval(polling); showErr(sd.error); return; }
+        document.getElementById('progressBar').style.width = (sd.progress || 0) + '%';
+        document.getElementById('progressMsg').textContent = sd.message || 'Memproses...';
+        if (sd.status === 'done') {
+          clearInterval(polling);
+          document.getElementById('progressArea').style.display = 'none';
+          showResult(sd.clips);
+          loadFiles();
+        } else if (sd.status === 'error') {
+          clearInterval(polling);
+          showErr(sd.error || 'Terjadi kesalahan');
+        }
+      } catch (e) { clearInterval(polling); showErr('Gagal: ' + e.message); }
+    }, 1000);
+  } catch (e) { showErr('Error: ' + e.message); }
+}
+
+function showResult(clips) {
+  const rd = document.getElementById('result');
+  if (!clips || !clips.length) {
+    rd.innerHTML = '<p class="status-msg err">✗ Tidak ada klip yang berhasil dibuat. Cek log server.</p>';
+    return;
+  }
+  let h = '<hr class="divider">';
+  h += '<div class="success-banner">';
+  h += '<h3>✓ ' + clips.length + ' Klip Berhasil Dibuat</h3>';
+  h += '<p>Klip tersimpan di File Manager. Putar langsung di bawah atau unduh.</p>';
+  h += '</div>';
+
+  clips.forEach((cl, i) => {
+    h += '<div class="file-card" style="border-color:var(--success);">';
+    h += '<video controls playsinline preload="metadata"><source src="' + cl.stream_url + '" type="video/mp4"></video>';
+    h += '<div class="file-card-info">';
+    h += '<div class="filename">🎞️ Klip ' + (i+1) + ' <small>' + cl.filename + '</small></div>';
+    h += renderMeta(cl.meta);
+    h += '<div class="file-actions"><a href="' + cl.download_url + '" download>⬇️ Unduh</a></div>';
+    h += '</div></div>';
+  });
+
+  h += '<div style="text-align:center;margin-top:1rem;">';
+  h += '<button class="btn-ghost" onclick="document.querySelector(\'.tab-button[data-tab=files]\').click()">📁 Buka File Manager</button>';
+  h += '</div>';
+  rd.innerHTML = h;
+  setTimeout(() => rd.scrollIntoView({behavior:'smooth', block:'start'}), 200);
+}
+
+function renderMeta(m) {
+  if (!m || (!m.title && !m.hook && !m.hashtag)) return '';
+  let h = '<div class="clip-meta-display">';
+  if (m.title) h += '<div class="meta-row"><span class="meta-label">📌 Judul</span><span class="meta-value">' + esc(m.title) + '</span></div>';
+  if (m.hook) h += '<div class="meta-row"><span class="meta-label">🎣 Hook</span><span class="meta-value">' + esc(m.hook) + '</span></div>';
+  if (m.hashtag) h += '<div class="meta-row"><span class="meta-label">#️⃣ Tag</span><span class="meta-value">' + esc(m.hashtag) + '</span></div>';
+  h += '</div>';
+  return h;
+}
+
+function showErr(msg) {
+  document.getElementById('progressArea').style.display = 'none';
+  document.getElementById('result').innerHTML = '<p class="status-msg err">✗ ' + esc(msg) + '</p>';
+}
+
+async function loadFiles() {
+  try {
+    const r = await fetch('/files');
+    const d = await r.json();
+    renderVideos(d.videos);
+    renderClips(d.clips);
+  } catch (e) { console.error(e); }
+}
+
+function renderVideos(v) {
+  const c = document.getElementById('videoList');
+  if (!v || !v.length) { c.innerHTML = '<p class="empty-note">Belum ada video.</p>'; return; }
+  let h = '';
+  v.forEach(x => {
+    const badge = x.has_srt ? '<span class="badge-srt">SRT tersimpan</span>' : '';
+    h += '<div class="file-card"><video controls playsinline preload="metadata"><source src="' + x.stream_url + '" type="video/mp4"></video>';
+    h += '<div class="file-card-info"><div class="filename">' + esc(x.title) + ' <small>' + x.filename + '</small>' + badge + '</div>';
+    h += '<div class="file-actions">';
+    h += '<button class="btn-blue btn-sm" onclick="reprocessVideo(\'' + x.filename + '\')">✂️ Potong Ulang</button>';
+    h += '<a href="' + x.download_url + '" download>⬇️ Unduh</a>';
+    h += '<button class="btn-danger btn-sm" onclick="delFile(\'video\',\'' + x.filename + '\')">🗑️ Hapus</button>';
+    h += '</div></div></div>';
+  });
+  c.innerHTML = h;
+}
+
+let allClips = [];
+let showAllClips = false;
+const CLIP_PAGE_SIZE = 6;
+
+function renderClips(c) {
+  const el = document.getElementById('clipList');
+  const toolbar = document.getElementById('clipToolbar');
+  allClips = c || [];
+  if (!c || !c.length) {
+    el.innerHTML = '<p class="empty-note">Belum ada klip.</p>';
+    toolbar.style.display = 'none';
+    return;
+  }
+  toolbar.style.display = 'flex';
+  updateToolbarInfo();
+
+  // Tampilkan semua atau dibatasi
+  const display = showAllClips ? allClips : allClips.slice(0, CLIP_PAGE_SIZE);
+  let h = '';
+  display.forEach((x, i) => {
+    h += '<div class="file-card clip-item" id="clip-' + x.filename + '">';
+    h += '<input type="checkbox" class="clip-checkbox" onchange="onClipCheck(this)" data-fn="' + x.filename + '">';
+    h += '<video controls playsinline preload="metadata"><source src="' + x.stream_url + '" type="video/mp4"></video>';
+    h += '<div class="file-card-info"><div class="filename">' + x.filename + '</div>';
+    h += renderMeta(x.meta);
+    h += '<div class="file-actions"><a href="' + x.download_url + '" download>⬇️ Unduh</a>';
+    h += '<button class="btn-danger btn-sm" onclick="delFile(\'clip\',\'' + x.filename + '\')">🗑️ Hapus</button>';
+    h += '</div></div></div>';
+  });
+
+  // Info jika dibatasi
+  if (!showAllClips && allClips.length > CLIP_PAGE_SIZE) {
+    h += '<div class="clip-limit-info">';
+    h += 'Menampilkan ' + CLIP_PAGE_SIZE + ' dari ' + allClips.length + ' klip.';
+    h += '<br><button class="btn-ghost btn-sm" onclick="toggleShowAll()">Tampilkan Semua (' + allClips.length + ')</button>';
+    h += '</div>';
+  } else if (showAllClips && allClips.length > CLIP_PAGE_SIZE) {
+    h += '<div class="clip-limit-info">';
+    h += '<button class="btn-ghost btn-sm" onclick="toggleShowAll()">↑ Sembunyikan (tampil ' + CLIP_PAGE_SIZE + ')</button>';
+    h += '</div>';
+  }
+
+  el.innerHTML = h;
+  // Restore checkbox state jika ada yang sudah dicentang
+  restoreCheckboxes();
+}
+
+function toggleShowAll() {
+  showAllClips = !showAllClips;
+  renderClips(allClips);
+}
+
+function onClipCheck(cb) {
+  const fn = cb.dataset.fn;
+  const item = document.getElementById('clip-' + fn);
+  if (item) item.classList.toggle('selected', cb.checked);
+  updateToolbarInfo();
+}
+
+function restoreCheckboxes() {
+  // Kosongkan mapping checkbox setiap kali re-render
+  // (state hilang saat renderClips dipanggil ulang)
+}
+
+function getSelectedFilenames() {
+  const cbs = document.querySelectorAll('.clip-checkbox:checked');
+  return Array.from(cbs).map(cb => cb.dataset.fn);
+}
+
+function updateToolbarInfo() {
+  const info = document.getElementById('clipToolbarInfo');
+  const btnDel = document.getElementById('btnDeleteSelected');
+  const sel = getSelectedFilenames();
+  if (sel.length > 0) {
+    info.textContent = sel.length + ' dipilih';
+    info.classList.add('active');
+    btnDel.style.display = 'inline-block';
+  } else {
+    info.textContent = allClips.length + ' klip';
+    info.classList.remove('active');
+    btnDel.style.display = 'none';
+  }
+  // Update checkbox "Pilih Semua"
+  const chkAll = document.getElementById('chkAll');
+  if (chkAll) {
+    const visible = document.querySelectorAll('.clip-checkbox');
+    const checked = document.querySelectorAll('.clip-checkbox:checked');
+    chkAll.checked = visible.length > 0 && visible.length === checked.length;
+  }
+}
+
+function toggleSelectAll(cb) {
+  const all = document.querySelectorAll('.clip-checkbox');
+  all.forEach(x => {
+    x.checked = cb.checked;
+    const item = document.getElementById('clip-' + x.dataset.fn);
+    if (item) item.classList.toggle('selected', cb.checked);
+  });
+  updateToolbarInfo();
+}
+
+async function deleteSelectedClips() {
+  const fns = getSelectedFilenames();
+  if (!fns.length) { showToast('Belum ada yang dipilih', true); return; }
+  if (!confirm('Hapus ' + fns.length + ' klip terpilih?')) return;
+  try {
+    const r = await fetch('/delete/clips_batch', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ filenames: fns })
+    });
+    const d = await r.json();
+    if (d.success) {
+      showToast('✓ ' + d.deleted + ' klip dihapus');
+      document.getElementById('chkAll').checked = false;
+      loadFiles();
+    } else {
+      alert('Gagal: ' + (d.error || ''));
+    }
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+async function deleteAllClips() {
+  if (!allClips.length) { showToast('Tidak ada klip', true); return; }
+  if (!confirm('⚠️ Hapus SEMUA ' + allClips.length + ' klip? Tidak bisa dibatalkan!')) return;
+  if (!confirm('Yakin? Konfirmasi sekali lagi.')) return;
+  try {
+    const r = await fetch('/delete/clips_batch', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ all: true })
+    });
+    const d = await r.json();
+    if (d.success) {
+      showToast('✓ ' + d.deleted + ' klip dihapus');
+      document.getElementById('chkAll').checked = false;
+      loadFiles();
+    } else {
+      alert('Gagal: ' + (d.error || ''));
+    }
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+async function delFile(type, fn) {
+  if (!confirm('Hapus ' + fn + '?')) return;
+  try {
+    const r = await fetch('/delete/' + type + '/' + fn, { method: 'DELETE' });
+    const d = await r.json();
+    if (d.success) { showToast('Terhapus'); loadFiles(); }
+    else alert('Gagal: ' + (d.error || ''));
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+// Utils
+function copyText(t) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = t;
+    ta.style.position = 'fixed'; ta.style.top = '-9999px';
+    document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0, t.length);
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast(ok ? '✓ Disalin!' : '✗ Gagal', !ok);
+  } catch (e) { showToast('✗ ' + e.message, true); }
+}
+
+function showToast(msg, err) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (err ? ' err' : '');
+  setTimeout(() => { t.classList.remove('show'); }, 2000);
+}
+
+// ============ RESUME JOB AKTIF ============
+async function reprocessVideo(fn) {
+  try {
+    const r = await fetch('/video_history/' + fn);
+    const d = await r.json();
+    if (d.error) { alert(d.error); return; }
+
+    activeVideoFn = fn;
+
+    // Isi ulang form
+    document.getElementById('url').value = '';
+    document.getElementById('url').placeholder = 'Potong ulang: ' + d.title;
+    if (d.srt_filename) srtFn = d.srt_filename;
+
+    // Kalau ada riwayat klip, langsung load ke preview
+    if (d.last_clips && d.last_clips.length) {
+      parsed = d.last_clips.map(c => ({
+        start: c.start,
+        end: c.end,
+        title: c.meta ? c.meta.title || '' : '',
+        hook: c.meta ? c.meta.hook || '' : '',
+        hashtag: c.meta ? c.meta.hashtag || '' : ''
+      }));
+      renderPreview();
+      document.getElementById('step1').style.display = 'none';
+      document.getElementById('step2').style.display = 'block';
+      document.querySelector('.tab-button[data-tab="buat"]').click();
+      setTimeout(() => window.scrollTo({top:0, behavior:'smooth'}), 100);
+      showToast('Riwayat klip dimuat: ' + d.last_clips.length + ' klip');
+    } else {
+      resetAnalysis();
+      document.querySelector('.tab-button[data-tab="buat"]').click();
+      alert('Video ini belum punya riwayat klip. Upload SRT baru untuk analisis.');
+    }
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+async function checkActiveJob() {
+  try {
+    const r = await fetch('/active_job');
+    const d = await r.json();
+    if (!d.active) {
+      console.log('[resume] Tidak ada job aktif');
+      return;
+    }
+
+    console.log('[resume] Job aktif ditemukan:', d.job_id, d.status);
+
+    // Paksa pindah ke tab Buat Klip supaya progress terlihat
+    const buatTab = document.querySelector('.tab-button[data-tab="buat"]');
+    if (buatTab) buatTab.click();
+
+    // Sembunyikan step1 & step2, tampilkan progress
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('progressArea').style.display = 'block';
+    document.getElementById('progressBar').style.width = (d.progress || 0) + '%';
+    document.getElementById('progressMsg').textContent = d.message || 'Memproses...';
+
+    // Update tombol analyze jadi disabled (karena ada job jalan)
+    const btn = document.getElementById('btnAnalyze');
+    if (btn) btn.disabled = true;
+
+    // Kalau sudah selesai saat buka, langsung tampilkan hasil
+    if (d.status === 'done' || d.status === 'error') {
+      await handleJobDone(d.job_id);
+      return;
+    }
+
+    // Kalau masih jalan, mulai polling
+    // Bersihkan polling lama kalau ada
+    if (polling) { clearInterval(polling); polling = null; }
+    polling = setInterval(async () => {
+      try {
+        const sr = await fetch('/status/' + d.job_id);
+        const sd = await sr.json();
+        if (sd.error) { clearInterval(polling); showErr(sd.error); return; }
+        document.getElementById('progressBar').style.width = (sd.progress || 0) + '%';
+        document.getElementById('progressMsg').textContent = sd.message || 'Memproses...';
+        if (sd.status === 'done') {
+          clearInterval(polling);
+          await handleJobDone(d.job_id);
+        } else if (sd.status === 'error') {
+          clearInterval(polling);
+          document.getElementById('progressArea').style.display = 'none';
+          showErr(sd.error || 'Terjadi kesalahan');
+          document.getElementById('btnAnalyze').disabled = false;
+        }
+      } catch (e) { clearInterval(polling); console.error(e); }
+    }, 1500);
+
+  } catch (e) {
+    console.error('[resume] Error:', e);
+  }
+}
+
+async function handleJobDone(jobId) {
+  try {
+    const sr = await fetch('/status/' + jobId);
+    const sd = await sr.json();
+    document.getElementById('progressArea').style.display = 'none';
+    showResult(sd.clips || []);
+    loadFiles();
+    // Clear active job di backend
+    await fetch('/active_job/clear', { method: 'POST' });
+    // Re-enable tombol
+    const btn = document.getElementById('btnAnalyze');
+    if (btn) btn.disabled = false;
+  } catch (e) {
+    console.error(e);
+    document.getElementById('btnAnalyze').disabled = false;
+  }
+}
+
+// ============ LOAD INIT ============
+window.addEventListener('load', async () => {
+  await loadFiles();
+  await checkActiveJob();
+});
+</script>
+</body>
+</html>
