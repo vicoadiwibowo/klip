@@ -1,0 +1,14 @@
+downloads/
+clips/
+uploads_srt/
+uploads_music/
+uploads_test_videos/
+state.json
+server.log
+*.log
+*.pyc
+__pycache__/
+*.bak
+prompt.txt
+patch_*.py
+fix_*.py
