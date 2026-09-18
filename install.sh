@@ -8,7 +8,15 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 RED='\033[0;31m'
+BOLD='\033[1m'
 NC='\033[0m'
+
+# PENTING: Arahkan input dari terminal langsung (bukan pipe)
+if [ -t 0 ]; then
+    TTY_IN="/dev/tty"
+else
+    TTY_IN="/dev/tty"
+fi
 
 echo ""
 echo -e "${CYAN}========================================${NC}"
@@ -17,12 +25,12 @@ echo -e "${CYAN}========================================${NC}"
 echo ""
 
 # ------------------------------------------------------------
-# STEP 1: Update + upgrade semua paket
+# STEP 1: Update + upgrade
 # ------------------------------------------------------------
 echo -e "${YELLOW}[1/7]${NC} Update Termux (upgrade semua paket)..."
 echo "  Ini bisa lama (5-10 menit) di install pertama."
 pkg update -y 2>&1 | tail -2 || true
-echo "  Upgrade paket lama (untuk fix library mismatch)..."
+echo "  Upgrade paket lama..."
 pkg upgrade -y 2>&1 | tail -3 || true
 echo -e "${GREEN}  OK${NC}"
 echo ""
@@ -34,64 +42,42 @@ echo -e "${YELLOW}[2/7]${NC} Install paket dasar (python, git, ffmpeg)..."
 pkg install -y python git 2>&1 | tail -2 || true
 pkg install -y python-cryptography 2>&1 | tail -2 || true
 
-# ------------------------------------------------------------
 # FFmpeg auto-repair
-# ------------------------------------------------------------
 echo "  Install ffmpeg..."
 
 install_ffmpeg() {
     pkg install -y ffmpeg 2>&1 | tail -3 || true
-
-    # Test apakah ffmpeg bisa jalan
     if ffmpeg -version > /dev/null 2>&1; then
         return 0
     fi
     return 1
 }
 
-# Coba install biasa
 if install_ffmpeg; then
     echo -e "${GREEN}  OK ffmpeg terinstall${NC}"
 else
-    echo -e "${YELLOW}  ⚠ ffmpeg error, coba fix library dependency...${NC}"
-
-    # Fix 1: Reinstall libplacebo (penyebab error libplacebo.so)
-    echo "  Fix 1: reinstall libplacebo..."
+    echo -e "${YELLOW}  ⚠ ffmpeg error, coba fix 1: reinstall libplacebo${NC}"
     pkg install --reinstall -y libplacebo 2>&1 | tail -2 || true
-
     if install_ffmpeg; then
-        echo -e "${GREEN}  OK ffmpeg terinstall (setelah fix libplacebo)${NC}"
+        echo -e "${GREEN}  OK ffmpeg terinstall${NC}"
     else
-        echo -e "${YELLOW}  ⚠ Masih error, coba fix 2: reinstall semua${NC}"
-
-        # Fix 2: Reinstall ffmpeg + libplacebo + semua deps
+        echo -e "${YELLOW}  ⚠ Fix 2: reinstall ffmpeg + libplacebo${NC}"
         pkg install --reinstall -y ffmpeg libplacebo 2>&1 | tail -3 || true
-
         if install_ffmpeg; then
-            echo -e "${GREEN}  OK ffmpeg terinstall (setelah full reinstall)${NC}"
+            echo -e "${GREEN}  OK ffmpeg terinstall${NC}"
         else
-            # Fix 3: Upgrade terakhir, hapus cache
-            echo -e "${YELLOW}  ⚠ Masih error, coba fix 3: clean cache + upgrade${NC}"
+            echo -e "${YELLOW}  ⚠ Fix 3: clean + upgrade${NC}"
             apt clean
             pkg upgrade -y 2>&1 | tail -3 || true
             pkg install -y ffmpeg 2>&1 | tail -3 || true
-
             if install_ffmpeg; then
                 echo -e "${GREEN}  OK ffmpeg terinstall${NC}"
             else
-                echo -e "${RED}  ✗ ffmpeg tetap error.${NC}"
-                echo ""
-                echo -e "${YELLOW}  Solusi manual:${NC}"
-                echo "  1. Jalankan: termux-change-repo"
-                echo "  2. Pilih mirror utama (misal Grimler atau AArch64)"
-                echo "  3. Jalankan ulang install.sh"
-                echo ""
-                echo -e "${YELLOW}  Lanjut install tanpa ffmpeg (aplikasi tidak akan berfungsi penuh)${NC}"
+                echo -e "${RED}  ✗ ffmpeg tetap error. Coba 'termux-change-repo' lalu ulangi.${NC}"
             fi
         fi
     fi
 fi
-
 echo ""
 
 # ------------------------------------------------------------
@@ -125,50 +111,78 @@ mkdir -p downloads clips uploads_srt uploads_music
 echo -e "${GREEN}  OK${NC}"
 
 # ------------------------------------------------------------
-# STEP 5: Python dependencies
+# STEP 5: Python deps
 # ------------------------------------------------------------
 echo -e "${YELLOW}[5/7]${NC} Install dependencies Python..."
 pip install --quiet --upgrade flask requests 2>&1 | grep -v "already satisfied" | tail -1 || true
 pip install --quiet --upgrade yt-dlp 2>&1 | grep -v "already satisfied" | tail -1 || true
 echo -e "${GREEN}  OK${NC}"
+echo ""
 
 # ------------------------------------------------------------
-# STEP 6: API Key
+# STEP 6: API KEY INPUT (dari /dev/tty — bisa dibaca walau via curl|bash)
 # ------------------------------------------------------------
+clear
+
 echo ""
-echo -e "${CYAN}========================================${NC}"
-echo -e "${CYAN}   KONFIGURASI API KEY GEMINI${NC}"
-echo -e "${CYAN}========================================${NC}"
+echo -e "${CYAN}╔════════════════════════════════════════════════╗${NC}"
+echo -e "${CYAN}║                                                ║${NC}"
+echo -e "${CYAN}║   ${BOLD}${YELLOW}LANGKAH TERAKHIR: MASUKKAN API KEY${NC}${CYAN}            ║${NC}"
+echo -e "${CYAN}║                                                ║${NC}"
+echo -e "${CYAN}╚════════════════════════════════════════════════╝${NC}"
 echo ""
-echo "  Dapatkan API key gratis di:"
-echo -e "  ${CYAN}https://aistudio.google.com/app/apikey${NC}"
+echo -e "  ${BOLD}Belum punya API key?${NC}"
+echo -e "  Buka browser: ${CYAN}https://aistudio.google.com/app/apikey${NC}"
+echo -e "  Login Google → klik ${BOLD}Create API key${NC} → ${BOLD}COPY${NC}"
 echo ""
-echo "  Copy key → paste di bawah → Enter"
+echo -e "  ${BOLD}Cara paste di Termux:${NC}"
+echo -e "  1. Ketuk dan tahan di area terminal"
+echo -e "  2. Pilih ${GREEN}Paste${NC}"
+echo -e "  3. Tekan ${GREEN}Enter${NC}"
+echo ""
+echo -e "${YELLOW}═════════════════════════════════════════════════${NC}"
+echo -e "${YELLOW}  ⬇  PASTE API KEY DI BAWAH INI  ⬇${NC}"
+echo -e "${YELLOW}═════════════════════════════════════════════════${NC}"
 echo ""
 
-read -p "  Paste API Key Gemini: " GEMINI_KEY
-GEMINI_KEY=$(echo "$GEMINI_KEY" | xargs)
+GEMINI_KEY=""
 
+# Loop sampai dapat input (baca dari /dev/tty supaya bisa dibaca walau via curl | bash)
+while [ -z "$GEMINI_KEY" ]; do
+    printf "  ${BOLD}${GREEN}▶ ${NC}"
+    read GEMINI_KEY < /dev/tty
+    GEMINI_KEY=$(echo "$GEMINI_KEY" | xargs)
+
+    if [ -z "$GEMINI_KEY" ]; then
+        echo -e "  ${RED}✗ Kosong. Paste key dulu, baru Enter.${NC}"
+        echo ""
+    fi
+done
+
+# Simpan key
 if grep -q "GEMINI_API_KEY" ~/.bashrc 2>/dev/null; then
     sed -i '/GEMINI_API_KEY/d' ~/.bashrc
 fi
 echo "export GEMINI_API_KEY=\"$GEMINI_KEY\"" >> ~/.bashrc
-echo -e "${GREEN}  ✓ API Key tersimpan${NC}"
+export GEMINI_API_KEY="$GEMINI_KEY"
+
+echo ""
+echo -e "  ${GREEN}✓ API Key tersimpan${NC}"
 echo ""
 
 # ------------------------------------------------------------
-# STEP 7: Verifikasi akhir
+# STEP 7: Verifikasi
 # ------------------------------------------------------------
 echo -e "${YELLOW}[6/7]${NC} Verifikasi install..."
 FFMPEG_STATUS="${RED}✗${NC}"
-YOUTUBE_STATUS="${RED}✗${NC}"
+YTDLP_STATUS="${RED}✗${NC}"
 PYTHON_STATUS="${RED}✗${NC}"
 
 if ffmpeg -version > /dev/null 2>&1; then
     FFMPEG_STATUS="${GREEN}✓${NC}"
 fi
 if yt-dlp --version > /dev/null 2>&1; then
-    YOUTUBE_STATUS="${GREEN}✓${NC}"
+    YTDLP_STATUS="${GREEN}✓${NC}"
 fi
 if python -c "import flask" 2>/dev/null; then
     PYTHON_STATUS="${GREEN}✓${NC}"
@@ -176,7 +190,7 @@ fi
 
 echo -e "  ${PYTHON_STATUS} Python + Flask"
 echo -e "  ${FFMPEG_STATUS} FFmpeg"
-echo -e "  ${YOUTUBE_STATUS} yt-dlp"
+echo -e "  ${YTDLP_STATUS} yt-dlp"
 echo ""
 
 # ------------------------------------------------------------
