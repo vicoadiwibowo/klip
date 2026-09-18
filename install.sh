@@ -55,40 +55,98 @@ pip install --quiet --upgrade flask requests 2>&1 | grep -v "already satisfied" 
 pip install --quiet --upgrade yt-dlp 2>&1 | grep -v "already satisfied" || true
 echo -e "${GREEN}  OK Dependencies terinstall${NC}"
 
+# ============================================================
+# KONFIGURASI API KEY GEMINI - ROBUST VERSION
+# ============================================================
+
 echo ""
 echo -e "${CYAN}==========================================${NC}"
 echo -e "${CYAN}   KONFIGURASI API KEY GEMINI${NC}"
 echo -e "${CYAN}==========================================${NC}"
 echo ""
 echo "  Cara mendapatkan API key:"
-echo "  1. Buka https://aistudio.google.com/app/apikey"
-echo "  2. Login Google"
-echo "  3. Klik 'Create API key'"
-echo "  4. Copy (format: AIzaSy...)"
+echo "  1. Buka: https://aistudio.google.com/app/apikey"
+echo "  2. Login dengan akun Google"
+echo "  3. Klik tombol 'Create API key'"
+echo "  4. Copy key yang muncul"
 echo ""
-read -p "  Paste API Key Gemini: " GEMINI_KEY
+echo -e "  ${YELLOW}Tips:${NC}"
+echo "  - Key biasanya diawali dengan 'AIzaSy...'"
+echo "  - Paste dengan cara: ketuk dan tahan di terminal, pilih Paste"
+echo "  - Jangan tekan Enter dulu sebelum key muncul di layar"
+echo ""
+echo -e "  Ketik ${RED}skip${NC} kalau mau isi API key nanti secara manual."
+echo ""
 
-if [ -z "$GEMINI_KEY" ]; then
-    echo -e "${RED}  X API key kosong. Dibatalkan.${NC}"
-    exit 1
+# Loop minta input sampai dapat
+GEMINI_KEY=""
+while [ -z "$GEMINI_KEY" ]; do
+    echo -n "  Paste API Key Gemini: "
+    read GEMINI_KEY
+    GEMINI_KEY=$(echo "$GEMINI_KEY" | xargs)  # trim whitespace
+
+    if [ "$GEMINI_KEY" = "skip" ] || [ "$GEMINI_KEY" = "SKIP" ]; then
+        echo ""
+        echo -e "${YELLOW}  ⏭  Skip. Anda bisa set manual nanti dengan perintah:${NC}"
+        echo -e "  ${GREEN}echo 'export GEMINI_API_KEY=\"ISI_KEY_DISINI\"' >> ~/.bashrc${NC}"
+        echo -e "  ${GREEN}source ~/.bashrc${NC}"
+        GEMINI_KEY=""
+        break
+    fi
+
+    if [ -z "$GEMINI_KEY" ]; then
+        echo -e "${RED}  ✗ Input kosong. Coba lagi, atau ketik 'skip'.${NC}"
+        echo ""
+    fi
+done
+
+# Simpan kalau ada key
+if [ -n "$GEMINI_KEY" ]; then
+    # Tampilkan preview (aman, hanya 20 karakter awal + akhir)
+    KEY_LEN=${#GEMINI_KEY}
+    if [ "$KEY_LEN" -gt 25 ]; then
+        PREVIEW="${GEMINI_KEY:0:15}...${GEMINI_KEY: -5}"
+    else
+        PREVIEW="$GEMINI_KEY"
+    fi
+
+    echo ""
+    echo -e "  Key yang akan disimpan: ${CYAN}$PREVIEW${NC}"
+    echo -n "  Benar? (y/n): "
+    read CONFIRM
+    CONFIRM=$(echo "$CONFIRM" | xargs)
+
+    if [ "$CONFIRM" = "y" ] || [ "$CONFIRM" = "Y" ] || [ "$CONFIRM" = "yes" ]; then
+        # Hapus key lama kalau ada
+        if grep -q "GEMINI_API_KEY" ~/.bashrc 2>/dev/null; then
+            sed -i '/GEMINI_API_KEY/d' ~/.bashrc
+        fi
+        echo "export GEMINI_API_KEY=\"$GEMINI_KEY\"" >> ~/.bashrc
+        echo -e "${GREEN}  ✓ API key tersimpan di ~/.bashrc${NC}"
+    else
+        echo -e "${YELLOW}  ⏭  Dibatalkan. Set manual nanti.${NC}"
+    fi
 fi
 
-if grep -q "GEMINI_API_KEY" ~/.bashrc 2>/dev/null; then
-    sed -i '/GEMINI_API_KEY/d' ~/.bashrc
-fi
-echo "export GEMINI_API_KEY=\"$GEMINI_KEY\"" >> ~/.bashrc
-echo -e "${GREEN}  OK API key tersimpan${NC}"
+# ============================================================
+# SELESAI
+# ============================================================
 
 echo ""
 echo -e "${CYAN}========================================${NC}"
 echo -e "${CYAN}         INSTALL BERHASIL               ${NC}"
 echo -e "${CYAN}========================================${NC}"
 echo ""
-echo "  Jalankan:"
+echo "  Untuk menjalankan:"
+echo ""
 echo -e "  ${GREEN}source ~/.bashrc${NC}"
 echo -e "  ${GREEN}cd ~/klip${NC}"
 echo -e "  ${GREEN}python app.py${NC}"
 echo ""
 echo "  Buka browser:"
 echo -e "  ${CYAN}http://192.168.x.x:5000${NC}"
+echo ""
+echo -e "  ${YELLOW}Kalau API key belum di-set:${NC}"
+echo -e "  ${GREEN}export GEMINI_API_KEY=\"ISI_KEY_ANDA\"${NC}"
+echo -e "  ${GREEN}cd ~/klip && python app.py${NC}"
 echo ""
